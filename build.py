@@ -15,6 +15,18 @@ def pushd(new_dir):
     finally:
         os.chdir(previous_dir)
 
+def fixup_line_endings(file_path):
+    file_data = ""
+
+    with open(file_path, 'rb') as file:
+        file_data = file.read()
+        
+    file_data = file_data.replace(b'\r\n',  b'\n')
+
+    with open(file_path, 'wb') as file:
+        file.write(file_data)
+
+
 ##### main:
 
 parser = argparse.ArgumentParser()
@@ -149,3 +161,7 @@ target_sources(webgpu PRIVATE ${WEBGPU_DAWN_NATIVE_PROC_GEN})"""
         shutil.copy(f"dawn.build/src/dawn/native/{config}/webgpu.lib", "dawn.out/lib/")
     else:
         shutil.copy("dawn.build/src/dawn/native/libwebgpu.dylib", "dawn.out/lib/")
+
+    # ensure line endings are consistent between windows/unix systems since they
+    # will be used in the Orca project
+    fixup_line_endings("dawn.out/include/webgpu.h")

@@ -148,6 +148,10 @@ target_sources(webgpu PRIVATE ${WEBGPU_DAWN_NATIVE_PROC_GEN})"""
         "cmake", "--build", "dawn.build", "--config", config, "--target", "webgpu", *parallel
     ], check = True)
 
+    # on macOS, change install name to executable path
+    if platform.system() == "Darwin":
+        subprocess.run(['install_name_tool', '-id', '@executable_path/libwebgpu.dylib', 'dawn.build/src/dawn/native/libwebgpu.dylib'], check=True)
+
     # package result
     print("  * copying build artifacts...")
 

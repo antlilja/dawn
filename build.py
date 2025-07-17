@@ -54,16 +54,6 @@ print("Building dawm at sha " + DAWN_COMMIT + " in config: " + config)
 os.makedirs("build", exist_ok=True)
 
 with pushd("build"):
-    # get depot tools repo
-    print("  * checking depot tools")
-    if not os.path.exists("depot_tools"):
-        subprocess.run([
-            "git", "clone", "--depth=1", "--no-tags", "--single-branch",
-            "https://chromium.googlesource.com/chromium/tools/depot_tools.git"
-        ], check=True)
-    os.environ["PATH"] = os.path.join(os.getcwd(), "depot_tools") + os.pathsep + os.environ["PATH"]
-    os.environ["DEPOT_TOOLS_WIN_TOOLCHAIN"] = "0"
-
     # get dawn repo
     print("  * checking dawn")
     if not os.path.exists("dawn"):
@@ -84,11 +74,6 @@ with pushd("build"):
         subprocess.run([
             "git", "checkout", "--force", DAWN_COMMIT
         ], check=True)
-
-        shutil.copy("scripts/standalone.gclient", ".gclient")
-
-        shell = True if platform.system() == "Windows" else False
-        subprocess.run(["gclient", "sync"], shell=shell, check=True)
 
     print("  * preparing build")
 
@@ -136,7 +121,8 @@ target_sources(webgpu PRIVATE ${WEBGPU_DAWN_NATIVE_PROC_GEN})"""
         "-D", "DAWN_BUILD_SAMPLES=ON",
         "-D", "TINT_BUILD_SAMPLES=OFF",
         "-D", "TINT_BUILD_DOCS=OFF",
-        "-D", "TINT_BUILD_TESTS=OFF"
+        "-D", "TINT_BUILD_TESTS=OFF",
+        "-D", "DAWN_FETCH_DEPENDENCIES=ON"
     ], check = True)
 
     parallel = ["--parallel"]
